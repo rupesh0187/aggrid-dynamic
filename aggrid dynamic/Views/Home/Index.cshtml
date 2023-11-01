@@ -1,0 +1,182 @@
+﻿@model aggrid_dynamic.Models.Student
+
+@{
+    ViewData["Title"] = "Home Page";
+}
+
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>JavaScript example</title>
+        <meta charSet="UTF-8"/>
+        <meta name="viewport" content="width=device-width, initial-scale=1"/>
+        <style media="only screen">
+            html, body {
+                height: 100%;
+                width: 100%;
+                margin: 0;
+                box-sizing: border-box;
+                -webkit-overflow-scrolling: touch;
+            }
+
+            html {
+                position: absolute;
+                top: 0;
+                left: 0;
+                padding: 0;
+                overflow: auto;
+            }
+
+            body {
+                padding: 1rem;
+                overflow: auto;
+            }
+        </style>
+
+
+
+
+
+    </head>
+    <body>
+            <div class="row">
+    <div class="col-md-4">
+        <form asp-action="AddStudent">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group">
+                <label asp-for="FirstName" class="control-label"></label>
+                <input asp-for="FirstName" class="form-control" />
+                <span asp-validation-for="FirstName" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="LastName" class="control-label"></label>
+                <input asp-for="LastName" class="form-control" />
+                <span asp-validation-for="LastName" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Course" class="control-label"></label>
+                <input asp-for="Course" class="form-control" />
+                <span asp-validation-for="Course" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="PhoneNo" class="control-label"></label>
+                <input asp-for="PhoneNo" class="form-control" />
+                <span asp-validation-for="PhoneNo" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Age" class="control-label"></label>
+                <input asp-for="Age" class="form-control" />
+                <span asp-validation-for="Age" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Gender" class="control-label"></label>
+                <input asp-for="Gender" class="form-control" />
+                <span asp-validation-for="Gender" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Create" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+<br />
+<br />
+
+<div id="myGrid" class="ag-theme-alpine" style="height: 400px; width:1000px;"></div>
+
+
+
+        <script>
+
+           
+            function getListOfRowData() {
+                fetch("/Home/GetData")
+                    .then(response => response.json())
+                    .then(data => { 
+
+                    gridOptions.api.setRowData(data);
+                });
+
+            }
+          var gridData=getListOfRowData();
+         // console.log(gridData);
+
+          var gridOptions ={
+                columnDefs: [
+                    //{ field: 'Id', headerName: 'Student-Id' },
+                    { field: 'firstName', headerName: 'FIRST-NAME',maxWidth: 150 },
+                    { field: 'lastName', headerName: 'SURNAME',maxWidth: 150 },
+                    { field: 'course', headerName: 'Course-Name',maxWidth: 150 },
+                    { field: 'phoneNo', headerName: 'Phone-No',maxWidth: 150 },
+                    { field: 'age', headerName: 'Age',maxWidth: 150},
+                    { field: 'gender', headerName: 'GENDER',maxWidth: 150 },
+                    {
+                        headerName:'Action',
+
+                        cellRenderer:function(params){
+
+                            return `<button class="btn-delete" onclick="Deleteitem(${params.data.id})">Del Data</button>`;
+                    
+                        },
+                        editable:false
+                    },
+                    
+                ],
+                defaultColDef: {
+                    sortable: true, 
+                    filter: true,
+                    editable:true,
+                },
+
+                onCellValueChanged:function(params){
+                    $.ajax({
+                        url:'/Home/EditEmployee',
+                        type:'put',
+                        data:params.data,
+                        success:function(response){
+                            if(response.success){
+                                
+                            }
+                            else
+                            {
+
+                            }
+                        },
+                        error:function(){
+
+                        }
+                    });
+                }
+                
+
+          };
+
+            const eGridDiv = document.getElementById("myGrid");
+
+            new agGrid.Grid(eGridDiv, gridOptions);
+
+            function Deleteitem(Id){
+                    if(confirm('are you sure to want to delete data'))
+                    {
+                        $.ajax({
+
+                            url:'/Home/Delete/' +Id,
+                            type:'POST',
+                            success:function()
+                            {
+                                location.reload();
+                            },
+                            error:function(){
+
+                                alert('an error occoured while deleteing the item');
+
+                            },
+                            
+                        });
+                    };
+            };
+
+        </script>
+</body>
+
+   </html>
